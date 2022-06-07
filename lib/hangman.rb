@@ -14,4 +14,5 @@ class Hangman
         .select { |word| word.length.between?(5, 12) }
         .sample
   end
+
 end
