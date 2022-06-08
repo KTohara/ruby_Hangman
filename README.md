@@ -10,4 +10,4 @@ This command line version of Hangman chooses a random word from first20hours' [1
 * To win: uncover all letters within the word, within 10 tries.
 * Random picked words can be 5 to 12 letters long.
 * Every turn requires the player to input one letter.
-* You may save your file during any turn, and resume the game at a later point.
+* You may save your file during any turn and resume the game at a later point.

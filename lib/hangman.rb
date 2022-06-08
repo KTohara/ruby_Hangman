@@ -13,68 +13,122 @@ class Hangman
     @remaining_guesses = 10
     @hidden_word = Array.new(@word.length, '_')
     @guessed = []
+    @correct_guess = nil
     play
   end
 
   def play
     # display_intro
     # prompt_game # New game or load old game
-    puts text('word_size')
     until remaining_guesses.zero?
-      make_guess
-      # check_guess
-      #   #save_game if 'save', exit if 'exit'
-      #   compare to @hidden_word - red if incorrect, green if correct
-      #   @remaining_guesses -= 1 unless word.include?(input)
-      # update_hidden_word
-      #   find indices of letter in word, update @hidden_word based on indices
-      # game over?
-      #   !@hidden_word.include?('_')
-      #   @remaining_guesses.zero?
-      @remaining_guesses -= 1
+      display_turn_prompt
+      input = make_guess
+      #   #save if 'save', exit if 'exit'
+      check_guess(input)
+      
+      break if game_win?
     end
-    # repeat_game
+    game_result
   end
 
   private
 
-  attr_reader :word, :hidden_word, :remaining_guesses, :guessed
+  attr_reader :word, :hidden_word, :remaining_guesses, :guessed, :correct_guess
 
-  # choose a random word from sample.txt, with a length between 5 to 12
+  # choose a random word from word_list.txt, with a length between 5 to 12
   def generate_word
     File.read('word_list.txt')
         .split(' ')
         .select { |word| word.length.between?(5, 12) }
         .sample
+        .split('')
   end
 
-  # ask for input, and begin guess loop
-  def make_guess
-    system('clear')
+  def display_turn_prompt
+    p word # for debugging
     display_board
     puts prompt('guess')
     puts prompt('save')
-    input = gets.chomp.downcase
-    guess_loop(input)
   end
 
   def display_board
+    system('clear')
+    print display_banner
+    remaining_guess_case
+    puts display('hidden_word')
+    display_guess
+    puts display('guessed')
+  end
+
+  def remaining_guess_case
     case remaining_guesses
     when 1 then print text('final_guess')
     when (2..3) then print text('guess_remain').red
     when (4..5) then print text('guess_remain').yellow
     else print text('guess_remain')
     end
-    puts display('hidden_word')
-    puts display('guessed')
+  end
+
+  def display_guess
+    return if correct_guess.nil?
+
+    puts correct_guess ? text('correct') : text('incorrect')
   end
 
   # loops until guess input matches single alphabet, or 'save' or 'exit'
-  def guess_loop(input)
-    until input.match?(/^[a-z]{1}$/) || %w[save exit].include?(input)
-      puts guessed.include?(input) ? warning('repeat_letter') : warning('guess')
-      puts prompt('save')
-      input = gets.chomp.downcase
+  def make_guess
+    input = gets.chomp.downcase
+    exit if input == 'exit'
+    save if input == 'save'
+    raise warning('guess') unless input.match?(/^[a-z]{1}$/)
+    raise warning('repeat_letter') if guessed.include?(input.red) || guessed.include?(input.green)
+
+    input
+  rescue StandardError => e
+    puts e
+    retry
+  end
+
+  # check for correct guess, map @hidden_word with guess, decrement guess count if incorrect
+  # add input with correct color code to @guessed
+  def check_guess(input)
+    if word.include?(input)
+      hidden_word.map!.with_index { |letter, i| word[i] == input ? input : letter }
+      guessed << input.green
+      @correct_guess = true
+    else
+      @remaining_guesses -= 1
+      guessed << input.red
+      @correct_guess = false
     end
+  end
+
+  # serialize method
+  def save
+    exit
+  end
+
+  def game_win?
+    hidden_word == word
+  end
+
+  def game_result
+    display_board
+    puts game_win? ? text('win') : text('lose')
+    puts prompt('replay')
+    repeat_game
+    puts text('thanks')
+    exit
+  end
+
+  def repeat_game
+    input = gets.chomp
+    raise prompt('replay') unless %w[1 2].include?(input)
+
+    Hangman.new if input == '1'
+  rescue StandardError => e
+    system('clear')
+    puts e
+    retry
   end
 end
