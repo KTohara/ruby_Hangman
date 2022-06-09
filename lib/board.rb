@@ -3,8 +3,6 @@
 require 'byebug'
 require_relative 'color'
 require_relative 'messages'
-require_relative 'save'
-require 'yaml'
 
 # Game logic
 class Board
@@ -34,8 +32,8 @@ class Board
     input
   end
 
-  # check for correct guess, map @hidden_word with guess, decrement guess count if incorrect
-  # add input with correct color code to @guessed
+  # check for matching letter, record input in @guessed
+  # decrements @remaining_guesses if no matches
   def check_guess(input)
     matches = matching_guess(input)
     if matches.empty?
@@ -52,12 +50,12 @@ class Board
   def game_win?
     hidden_word == word
   end
-  
+
   private
-  
+
   # choose a random word from word_list.txt, with a length between 5 to 12
   def generate_word
-    word_list = File.expand_path('../word_list.txt', __dir__)
+    word_list = File.open('./word_list.txt', 'r')
     File.read(word_list)
         .split(' ')
         .select { |word| word.length.between?(5, 12) }
@@ -65,12 +63,14 @@ class Board
         .split('')
   end
 
+  # finds matching letters, and returns indices from @word
   def matching_guess(input)
-    word.each_with_index.each_with_object([]) do |(char, i), acc|
+    word.each_with_object([]).with_index do |(char, acc), i|
       acc << i if input == char
     end
   end
 
+  # updates hidden word with the input by indices of #matching_guess
   def update_guess(indices, input)
     indices.each { |i| hidden_word[i] = input }
   end

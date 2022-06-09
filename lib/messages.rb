@@ -1,13 +1,22 @@
 # frozen_string_literal: true
 
-# Text content for Hangman
+# Text content and Display for Hangman
 module Messages
+  def display_intro
+    system('clear')
+    puts 'Lets play...'
+    print display_banner
+    puts "Play a new game, or Load a saved game?\n\n"
+    puts "#{'[1]'.blue} Play new game"
+    puts "#{'[2]'.blue} Load saved game\n"
+  end
+
   def display_board(error = nil)
     system('clear')
     print display_banner
     remaining_guess_case
     puts display('hidden_word')
-    display_guess
+    display_correct_or_incorrect
     puts display('guessed')
     puts prompt('guess')
     puts prompt('save')
@@ -23,7 +32,7 @@ module Messages
     end
   end
 
-  def display_guess
+  def display_correct_or_incorrect
     return if board.correct_guess.nil?
 
     puts board.correct_guess ? text('correct') : text('incorrect')
@@ -63,14 +72,17 @@ module Messages
     {
       'guess' => 'Guess a letter in the secret word.',
       'save' => "Type 'save' or 'exit' to leave the current game.",
-      'replay' => "Play again?\n\n[1] Play another game\n[2] Exit\n"
+      'replay' => "Play again?\n\n#{'[2]'.blue} Play another game\n#{'[2]'.blue} Exit\n",
+      'save_name' => "\nEnter name for your save file \n#{'[R]'.blue} Random file name"
     }[message]
   end
 
-  def warning(message)
+  def warning(message, name = nil)
     {
       'guess' => 'Guess must be a single letter.'.red,
-      'repeat_letter' => 'The letter has already been guessed.'.red
+      'repeat_letter' => 'The letter has already been guessed.'.red,
+      'save_name_exists' => "File already exists. Re-write save file? \n#{'[Y]'.red} Yes\n#{'[N]'.red} No",
+      'file_saved' => "Save state created: '#{name}'\nGoodbye!".red
     }[message]
   end
 end

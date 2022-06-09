@@ -5,6 +5,7 @@ require_relative 'messages'
 require_relative 'color'
 require_relative 'save'
 
+# Hangman initialization methods
 class Game
   include Messages
   include Save
@@ -12,14 +13,11 @@ class Game
   attr_reader :board
 
   def initialize
-    @board = Board.new
+    @board = nil
   end
 
   def play
-    system('clear')
-    # display_intro
-    # prompt_game # New game or load old game
-
+    new_game
     until board.game_over?
       display_board
       begin
@@ -32,6 +30,17 @@ class Game
       end
     end
     game_result
+  end
+
+  # prompt for new game or load game
+  def new_game
+    display_intro
+    input = gets.chomp
+    until %w[1 2].include?(input)
+      display_intro
+      input = gets.chomp
+    end
+    @board = input == '1' ? Board.new : load_game
   end
 
   def save_or_exit(input)
@@ -65,6 +74,4 @@ class Game
   end
 end
 
-if $PROGRAM_NAME == __FILE__
-  Game.new.play
-end
+Game.new.play if $PROGRAM_NAME == __FILE__
