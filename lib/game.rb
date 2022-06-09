@@ -4,6 +4,7 @@ require_relative 'board'
 require_relative 'messages'
 require_relative 'color'
 require_relative 'save'
+require 'yaml'
 
 # Hangman initialization methods
 class Game

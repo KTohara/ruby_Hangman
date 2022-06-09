@@ -1,20 +1,12 @@
 --- !ruby/object:Board
 word:
-- c
-- r
-- i
 - t
-- e
-- r
-- i
 - o
+- k
+- e
 - n
 remaining_guesses: 10
 hidden_word:
-- _
-- _
-- _
-- _
 - _
 - _
 - _

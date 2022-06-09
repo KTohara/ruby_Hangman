@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'yaml'
-
 # Save/load game serialization methods
 module Save
   def save_game(game)
