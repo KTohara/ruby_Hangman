@@ -36,7 +36,7 @@ class Game
 
   def save_or_exit(input)
     exit if input == 'exit'
-    save_game(self) if input == 'save'
+    save_game(board) if input == 'save'
   end
 
   def game_result
