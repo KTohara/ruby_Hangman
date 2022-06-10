@@ -3,47 +3,39 @@
 require_relative 'color'
 require_relative 'messages'
 
-# Game logic
+# Word matching logic for Hangman
 class Board
   include Messages
 
-  attr_reader :word, :hidden_word, :remaining_guesses, :guessed, :correct_guess
+  attr_reader :word, :remaining_guesses, :guess, :hidden_word, :guessed, :correct_guess
 
   def initialize
     @word = generate_word
     @remaining_guesses = 10
+    @guess = nil
     @hidden_word = Array.new(@word.length, '_')
     @guessed = []
     @correct_guess = nil
   end
 
-  def game_over?
-    remaining_guesses.zero? || game_win?
-  end
-
   # loops until guess input matches single alphabet, or 'save' or 'exit'
   def make_guess
-    input = gets.chomp.downcase
-    return input if %w[save exit].include?(input)
-    raise warning('guess') unless input.match?(/^[a-z]{1}$/)
-    raise warning('repeat_letter') if guessed.include?(input.red) || guessed.include?(input.green)
-
-    input
+    conditionals = [
+      proc { |letter| guessed.none? {} },
+      proc { |letter| letter.match?(/^[a-z]$|^exit$|^save$/i) }
+    ]
+    @guess = input_loop(prompt('guess'), warning('guess'), conditionals)
   end
 
-  # check for matching letter, record input in @guessed
-  # decrements @remaining_guesses if no matches
-  def check_guess(input)
-    matches = matching_guess(input)
-    if matches.empty?
-      @remaining_guesses -= 1
-      guessed << input.red
-      @correct_guess = false
-    else
-      update_guess(matches, input)
-      guessed << input.green
-      @correct_guess = true
-    end
+  def check_guess
+    return if guess == 'save'
+
+    matches = guess_matches
+    matches.empty? ? guess_incorrectly : guess_correctly(matches)
+  end
+
+  def game_over?
+    remaining_guesses.zero? || game_win?
   end
 
   def game_win?
@@ -63,14 +55,21 @@ class Board
   end
 
   # finds matching letters, and returns indices from @word
-  def matching_guess(input)
+  def guess_matches
     word.each_with_object([]).with_index do |(char, acc), i|
-      acc << i if input == char
+      acc << i if guess == char
     end
   end
 
-  # updates hidden word with the input by indices of #matching_guess
-  def update_guess(indices, input)
-    indices.each { |i| hidden_word[i] = input }
+  def guess_incorrectly
+    @remaining_guesses -= 1
+    guessed << guess.red
+    @correct_guess = false
+  end
+
+  def guess_correctly(indices)
+    indices.each { |i| hidden_word[i] = guess }
+    guessed << guess.green
+    @correct_guess = true
   end
 end

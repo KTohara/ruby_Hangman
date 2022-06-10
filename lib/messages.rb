@@ -2,6 +2,18 @@
 
 # Text content and Display for Hangman
 module Messages
+  def input_loop(message, warning, procs)
+    message.instance_of?(Method) ? message.call : (puts message)
+    begin
+      input = gets.chomp
+      true_or_false = procs.all? { |prc| prc.call(input) }
+      true_or_false ? (return input) : (raise warning)
+    rescue StandardError
+      warning.instance_of?(Method) ? warning.call : (puts warning)
+      retry
+    end
+  end
+
   def display_intro
     system('clear')
     puts 'Lets play...'
@@ -11,16 +23,13 @@ module Messages
     puts "#{'[2]'.blue} Load saved game\n"
   end
 
-  def display_board(error = nil)
+  def display_board
     system('clear')
     print display_banner
     remaining_guess_case
     puts display('hidden_word')
     display_correct_or_incorrect
     puts display('guessed')
-    puts prompt('guess')
-    puts prompt('save')
-    puts error
   end
 
   def remaining_guess_case
@@ -36,6 +45,12 @@ module Messages
     return if board.correct_guess.nil?
 
     puts board.correct_guess ? text('correct') : text('incorrect')
+  end
+
+  def prompt_load_message(files)
+    puts
+    files.each { |file| puts file }
+    puts prompt('load_game')
   end
 
   def display_banner
@@ -70,19 +85,22 @@ module Messages
 
   def prompt(message)
     {
-      'guess' => 'Guess a letter in the secret word.',
-      'save' => "Type 'save' or 'exit' to leave the current game.",
-      'replay' => "Play again?\n\n#{'[2]'.blue} Play another game\n#{'[2]'.blue} Exit\n",
-      'save_name' => "\nEnter name for your save file \n#{'[R]'.blue} Random file name"
+      'guess' => "Guess a letter in the secret word.\n" \
+                 "Type '#{'SAVE'.blue}' or '#{'EXIT'.blue}' to leave the current game.",
+      'replay?' => "Play again?\n\n#{'[1]'.blue} Play another game\n#{'[2]'.blue} Exit\n",
+      'save_name' => "\nEnter a name for your save file or:\n" \
+                     "#{'[R]'.blue} Random file name\n" \
+                     "#{'[Return]'.blue} Return to game\n",
+      'overwrite?' => "\nFile already exists. Re-write save file? \n#{'[Y]'.red} Yes\n#{'[N]'.red} No",
+      'load_game' => "\nChoose a save file to load.\n"
     }[message]
   end
 
-  def warning(message, name = nil)
+  def warning(message, file = nil)
     {
-      'guess' => 'Guess must be a single letter.'.red,
-      'repeat_letter' => 'The letter has already been guessed.'.red,
-      'save_name_exists' => "File already exists. Re-write save file? \n#{'[Y]'.red} Yes\n#{'[N]'.red} No",
-      'file_saved' => "Save state created: '#{name}'\nGoodbye!".red
+      'guess' => 'Guess must be a single letter, and must have not been already guessed'.red,
+      'invalid' => 'Invalid input. Try again.'.red,
+      'file_saved' => "\nSave state created: '#{file}'\nGoodbye!".red
     }[message]
   end
 end

@@ -1,0 +1,32 @@
+--- !ruby/object:Board
+word:
+- a
+- n
+- t
+- o
+- n
+- i
+- o
+remaining_guesses: 2
+guess: save
+hidden_word:
+- a
+- _
+- _
+- o
+- _
+- i
+- o
+guessed:
+- "\e[31mr\e[0m"
+- "\e[31mf\e[0m"
+- "\e[31me\e[0m"
+- "\e[31mu\e[0m"
+- "\e[92mo\e[0m"
+- "\e[92mi\e[0m"
+- "\e[92ma\e[0m"
+- "\e[31mp\e[0m"
+- "\e[31md\e[0m"
+- "\e[31mv\e[0m"
+- "\e[31mc\e[0m"
+correct_guess: false

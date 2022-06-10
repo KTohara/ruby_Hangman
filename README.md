@@ -19,6 +19,6 @@ This was my first project at implementing a save state feature with file I/O and
 
 The assignment taught me how to navigate through files and directories and how to manipulate the data through multiple types of serialization formats. I wanted to implement a few things that would mimic any standard saving feature. It came with a lot of head-scratching, but the result was enjoyable when I was finished with the project.
 
-The project isn't as DRY as I'd like it to be, but I would like to keep improving on how to minimize input loops, and learning what Ruby's standards are, even beyond what Rubocop suggests.
+I also tried to implement a catch-all input loop system, but I feel like I just made a huge unoptimized 'feature'. Despite what Rubocop teaches me, I am still learning what Ruby's standards are.
 
-Maybe it'll be my next refactoring!
+I would like to keep improving on keeping my code DRY and optimized

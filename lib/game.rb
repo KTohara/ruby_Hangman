@@ -11,67 +11,55 @@ class Game
   include Messages
   include Save
 
-  attr_reader :board
-
   def initialize
     @board = nil
   end
 
   def play
     new_game
-    until board.game_over?
-      display_board
-      begin
-        input = board.make_guess
-        save_or_exit(input)
-        board.check_guess(input)
-      rescue StandardError => e
-        display_board(e)
-        retry
-      end
-    end
+    play_turn until board.game_over?
     game_result
+    repeat_game
   end
 
-  # prompt for new game or load game
+  private
+
+  attr_reader :board
+
+  # prompt for [1] new game or [2] load game
   def new_game
-    display_intro
-    input = gets.chomp
-    until %w[1 2].include?(input)
-      display_intro
-      input = gets.chomp
-    end
+    conditional = [proc { |choice| %w[1 2].include?(choice) }]
+    input = input_loop(method(:display_intro), method(:display_intro), conditional)
     @board = input == '1' ? Board.new : load_game
   end
 
-  def save_or_exit(input)
-    exit if input == 'exit'
-    save_game(board) if input == 'save'
+  def play_turn
+    display_board
+    board.make_guess
+    save_or_exit
+    board.check_guess
+  end
+
+  def save_or_exit
+    exit if board.guess == 'exit'
+    save_game(board) if board.guess == 'save'
   end
 
   def game_result
     display_board
     puts board.game_win? ? text('win') : text('lose')
-    repeat_game
   end
 
+  # prompt for [1] replay or [2] exit, else clear and repeat prompt
   def repeat_game
-    puts prompt('replay')
-    begin
-      input = gets.chomp
-      raise prompt('replay') unless %w[1 2].include?(input)
+    conditional = [proc { |choice| %w[1 2].include?(choice) }]
+    input = input_loop(prompt('replay?'), warning('invalid'), conditional)
+    input == '1' ? Game.new.play : exit_game
+  end
 
-      if input == '1'
-        Game.new.play
-      else
-        puts text('thanks')
-        exit
-      end
-    rescue StandardError => e
-      system('clear')
-      puts e
-      retry
-    end
+  def exit_game
+    puts text('thanks')
+    exit
   end
 end
 
