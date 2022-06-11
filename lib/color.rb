@@ -39,7 +39,7 @@ class String
   end
 
   def uncolorize
-    self.gsub(/\e\[(\d+)m/, "")
+    gsub(/\e\[(\d+)m/, '')
   end
 
   def bg_black

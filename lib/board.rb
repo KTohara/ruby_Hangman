@@ -24,7 +24,6 @@ class Board
       proc { |letter| !guessed.map(&:uncolorize).include?(letter) },
       proc { |letter| letter.match?(/^[a-z]$|^exit$|^save$/i) }
     ]
-    debugger
     @guess = input_loop(prompt('guess'), warning('guess'), conditionals)
   end
 
