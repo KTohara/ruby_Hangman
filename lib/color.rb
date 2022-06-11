@@ -38,6 +38,10 @@ class String
     "\e[37m#{self}\e[0m"
   end
 
+  def uncolorize
+    self.gsub(/\e\[(\d+)m/, "")
+  end
+
   def bg_black
     "\e[40m#{self}\e[0m"
   end

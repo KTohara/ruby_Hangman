@@ -21,17 +21,18 @@ class Board
   # loops until guess input matches single alphabet, or 'save' or 'exit'
   def make_guess
     conditionals = [
-      proc { |letter| guessed.none? {} },
+      proc { |letter| !guessed.map(&:uncolorize).include?(letter) },
       proc { |letter| letter.match?(/^[a-z]$|^exit$|^save$/i) }
     ]
+    debugger
     @guess = input_loop(prompt('guess'), warning('guess'), conditionals)
   end
 
   def check_guess
     return if guess == 'save'
 
-    matches = guess_matches
-    matches.empty? ? guess_incorrectly : guess_correctly(matches)
+    indices = select_matching_index
+    indices.empty? ? guess_incorrectly : guess_correctly(indices)
   end
 
   def game_over?
@@ -55,7 +56,7 @@ class Board
   end
 
   # finds matching letters, and returns indices from @word
-  def guess_matches
+  def select_matching_index
     word.each_with_object([]).with_index do |(char, acc), i|
       acc << i if guess == char
     end
